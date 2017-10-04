@@ -12,26 +12,42 @@ import GameplayKit
 class GameScene: SKScene {
     
     var bgTexture: SKTexture!
+    var flyHeroTexture: SKTexture!
     
     //Sprite Nodes
     var bg = SKSpriteNode()
+    var hero = SKSpriteNode()
+    var ground = SKSpriteNode()
     
     //Sprite Objects
     var bgObject = SKNode()
+    var heroObject = SKNode()
+    var groundObject = SKNode()
     
+    var heroBitMask: UInt32 = 1
+    var groundBitMask: UInt32 = 2
+    
+    var heroFlyTextureArray = [SKTexture]()
+
     override func didMove(to view: SKView) {
         bgTexture = SKTexture(imageNamed: "bg01.png")
+        
+        flyHeroTexture = SKTexture(imageNamed: "run01.png ")
         
         creteObjects()
         createGame()
     }
     
     func creteObjects() {
-        self.addChild(bgObject )
+        self.addChild(bgObject)
+        self.addChild(groundObject)
+        self.addChild(heroObject)
     }
     
     func createGame() {
         createBG()
+        createGroung()
+        createHero()
     }
     
     func createBG() {
@@ -54,5 +70,53 @@ class GameScene: SKScene {
         }
     }
     
-  
+    func addHero(heroNode: SKSpriteNode, atPosition postion: CGPoint)  {
+         hero = SKSpriteNode(texture: flyHeroTexture)
+        
+        heroFlyTextureArray = [SKTexture(imageNamed: "run01.png"), SKTexture(imageNamed: "run02.png"), SKTexture(imageNamed: "run03.png"), SKTexture(imageNamed: "run04.png")]
+        
+        let heroRunAnimation = SKAction.animate(with: heroFlyTextureArray, timePerFrame: 0.1 )
+        let runHero = SKAction.repeatForever(heroRunAnimation)
+        hero.run(runHero)
+        
+        hero.position = postion
+        hero.size.height = 124
+        hero.size.width = 84
+        
+        hero.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: hero.size.width - 15 , height: hero.size.height))
+        
+//        hero.physicsBody?.categoryBitMask = heroBitMask
+//        hero.physicsBody?.contactTestBitMask = groundBitMask
+//        hero.physicsBody?.contactTestBitMask = groundBitMask
+        
+        hero.physicsBody?.isDynamic = true
+        hero.physicsBody?.allowsRotation = false
+        hero.physicsBody?.restitution = 0.0
+        hero.physicsBody?.usesPreciseCollisionDetection = true
+        
+        hero.zPosition = 1
+        
+        heroObject.addChild(hero)
+    }
+    
+    func createGroung() {
+        ground = SKSpriteNode()
+        ground.color = SKColor.red
+        
+        ground.position = CGPoint(x: self.frame.width / 2, y: 0)
+        ground.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: self.frame.width, height: self.frame.height / 4 + 5))
+        ground.physicsBody?.isDynamic = false
+//        ground.physicsBody?.categoryBitMask = groundBitMask
+//        ground.physicsBody?.contactTestBitMask = groundBitMask
+        ground.zPosition = 1
+        ground.physicsBody?.restitution = 0.0
+        
+        groundObject.addChild(ground)
+        
+    }
+    
+    func createHero() {
+        self.addHero(heroNode: hero, atPosition: CGPoint(x: self.size.width / 6, y: flyHeroTexture.size().height * 4 ))
+    }
+    
 }
